@@ -4,28 +4,10 @@ import '../home.dart';
 import 'report/employeeInfo.dart';
 import 'report.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'session_manager.dart';
-
-class SessionManager {
-  static final SessionManager _instance = SessionManager._internal();
-  String username = 'Guest';
-  String fullName = 'Full Name';
-
-  factory SessionManager() {
-    return _instance;
-  }
-
-  SessionManager._internal();
-
-  Future<void> loadUserData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    username = prefs.getString('username') ?? 'Guest';
-    fullName = prefs.getString('fullname') ?? 'Full Name';
-  }
-}
 
 
 class SharedWidgets {
+
 
   // Reusable AppBar
   static PreferredSizeWidget buildAppBar(BuildContext context, String title) {
@@ -62,7 +44,7 @@ class SharedWidgets {
 
   // Reusable Drawer
   static Widget buildDrawer(BuildContext context) {
-    final session = SessionManager();
+
     return Drawer(
       child: ListView(
         children: [
@@ -70,7 +52,7 @@ class SharedWidgets {
             padding: EdgeInsets.all(0),
             child: UserAccountsDrawerHeader(
               decoration: BoxDecoration(color: Colors.indigo),
-              accountName: Text(session.fullName,
+              accountName: Text("Faysal",
                 style: TextStyle(color: Colors.white),
               ),
               accountEmail: Text(

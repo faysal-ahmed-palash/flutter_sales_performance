@@ -3,22 +3,32 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'report.dart';
 import 'shared_widgets.dart';
 
-
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  // Username and full name session management
+  String username = '';
+  String fullName = '';
 
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username') ?? 'Guest'; // Default to 'Guest'
+      fullName = prefs.getString('fullname') ?? 'Full Name h'; // Default to an empty string
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    // Access the session data directly
-    String username = SessionManager().username;
-    String fullName = SessionManager().fullName;
-
     return Scaffold(
       appBar: SharedWidgets.buildAppBar(context, "Home Page"),
       drawer: SharedWidgets.buildDrawer(context),
