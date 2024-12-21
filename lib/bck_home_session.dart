@@ -4,13 +4,32 @@ import 'report.dart';
 import 'shared_widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage1 extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage1> {
 
+  // Session Section:
+  // Username and full name session management
+  String username = '';
+  String fullName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username') ?? 'Guest'; // Default to 'Guest'
+      fullName = prefs.getString('fullname') ?? 'Full Name h'; // Default to an empty string
+    });
+  }
+  // End session section
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +48,12 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(height: 20),
-
             Text(
               fullName.isNotEmpty ? 'Welcome, $fullName' : 'Welcome, $username',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
+
             SizedBox(height: 40),
             ElevatedButton.icon(
               icon: Icon(Icons.pie_chart),

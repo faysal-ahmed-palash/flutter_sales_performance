@@ -3,7 +3,8 @@ import 'package:sales_performance/setup_list.dart';
 import '../home.dart';
 import 'report/employeeInfo.dart';
 import 'report.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 
 class SharedWidgets {
@@ -13,9 +14,17 @@ class SharedWidgets {
   static PreferredSizeWidget buildAppBar(BuildContext context, String title) {
 
     // session user name
+    // Future<void> logoutUser(BuildContext context) async {
+    //   SharedPreferences prefs = await SharedPreferences.getInstance();
+    //   await prefs.remove('username');
+    //   Navigator.pushReplacementNamed(context, '/login');
+    // }
+
     Future<void> logoutUser(BuildContext context) async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.remove('username');
+      var sessionBox = Hive.box('SessionBox'); // Open the Hive box
+      await sessionBox.delete('username');    // Remove the username key
+
+      // Navigate to the login page
       Navigator.pushReplacementNamed(context, '/login');
     }
 
@@ -45,6 +54,11 @@ class SharedWidgets {
   // Reusable Drawer
   static Widget buildDrawer(BuildContext context) {
 
+    final box = Hive.box('sessionBox');
+    //final username = box.get('username', defaultValue: 'No username');
+    final fullName = box.get('fullname', defaultValue: 'No fullname');
+
+
     return Drawer(
       child: ListView(
         children: [
@@ -52,7 +66,8 @@ class SharedWidgets {
             padding: EdgeInsets.all(0),
             child: UserAccountsDrawerHeader(
               decoration: BoxDecoration(color: Colors.indigo),
-              accountName: Text("Faysal",
+              accountName: Text(
+                "$fullName",
                 style: TextStyle(color: Colors.white),
               ),
               accountEmail: Text(

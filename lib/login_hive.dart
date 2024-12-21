@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'home.dart';
 import 'package:animate_do/animate_do.dart';
 
-
-class LoginPageAuto extends StatefulWidget {
+class LoginPageHive extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPageAuto> {
+class _LoginPageState extends State<LoginPageHive> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
-  final _formKey = GlobalKey<FormState>(); // Form key for validation
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -24,11 +23,13 @@ class _LoginPageState extends State<LoginPageAuto> {
   }
 
   Future<void> _checkSession() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? username = prefs.getString('username');
+    // Initialize Hive if not already done
+    await Hive.initFlutter();
+    var sessionBox = await Hive.openBox('sessionBox');
 
+    // Check if session exists
+    String? username = sessionBox.get('username');
     if (username != null) {
-      // If a session exists, navigate directly to HomePage
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomePage()),
@@ -58,25 +59,31 @@ class _LoginPageState extends State<LoginPageAuto> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success']) {
+          // Retrieve the username and fullname
+          final String username = data['username'] ?? '';
+          final String fullName = data['fullname'] ?? '';
 
-          // Retrieve the username and full_name from the response
-          final String username = data['username'] ?? ''; // Default to empty if null
-          final String fullName = data['fullname'] ?? ''; // Default to empty if null
-
-          // set session name in flutter
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('username', username);
-          await prefs.setString('fullname', fullName);
+          // Save session details to Hive
+          var sessionBox = await Hive.openBox('sessionBox');
+          await sessionBox.put('username', username);
+          await sessionBox.put('fullname', fullName);
 
           // Navigate to HomePage
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()),);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+          );
         } else {
           // Show error message
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(data['message'])),);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'])),
+          );
         }
       } else {
         // Show error message
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to connect to the server')),);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to connect to the server')),
+        );
       }
     }
   }

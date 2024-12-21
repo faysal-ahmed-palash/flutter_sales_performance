@@ -16,7 +16,7 @@ void main() async {
     initialRoute: '/',
     routes: {
       '/': (context) => SplashScreen(),
-      '/login': (context) => LoginPageHive(), // Your main screen // for auto LotinPageAuto
+      '/login': (context) => LoginPageHive(), // Your main screen
     },
   ));
 }
